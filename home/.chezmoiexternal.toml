@@ -31,11 +31,5 @@
 	type = "git-repo"
 	url = "https://github.com/livingpool/kickstart.nvim.git"
 	refreshPeriod = "12h"
-	[".config/nvim".clone]
-		{{- if eq .chezmoi.hostname "tim_liu" }}
-		args = ["-b htc", "--single-branch"]
-		{{- else }}
-		args = ["-b main", "--single-branch"]
-		{{- end -}}
 	[".config/nvim".pull]
 		args = ["--ff-only"]

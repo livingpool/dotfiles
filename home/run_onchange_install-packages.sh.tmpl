@@ -1,4 +1,4 @@
-{{ if eq .chezmoi.os "darwin" -}}
+{{ if eq .osid "darwin" }}
 #!/bin/bash
 
 brew bundle --file=/dev/stdin <<EOF
@@ -10,10 +10,16 @@ cask {{ . | quote }}
 {{ end -}}
 EOF
 
-{{ else if eq .chezmoi.os "linux" -}}
+{{ else if eq .osid "linux-linuxmint" -}}
 #!/bin/bash
+sudo apt-get update && sudo apt-get install -y {{ range .packages.linuxmint.packages }} {{ . }} {{ end }}
 
-{{ range .packages.ubuntu.packages -}}
-sudo apt install {{ . }}
+{{ else if eq .osid "linux-debian" }}
 
-{{ end -}}
+# Debian-specific code
+
+{{ else if eq .osid "linux-fedora" }}
+
+# Fedora-specific code
+
+{{ end }}

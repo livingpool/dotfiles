@@ -24,10 +24,21 @@ packages:
     - 'spotify'
     - 'karabiner-elements'
     - 'raycast'
-  ubuntu:
+  linuxmint:
     packages:
     - 'openssh-server'
     - 'ripgrep'
     - 'gcc'
     - 'gdb'
+    - 'ninja-build'
+    - 'gettext'
+    - 'cmake'
+    - 'curl'
+    - 'build-essential'
+    - 'git'
+    - 'clang'
+    - 'nodejs'
+    - 'npm'
+    - 'tmux'
+    - 'jq'
 
