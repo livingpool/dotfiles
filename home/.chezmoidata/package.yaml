@@ -18,11 +18,12 @@ packages:
     - 'fzf'
     - 'diff-so-fancy'
     - 'chezmoi'
+    - 'cargo-binstall'
+    - 'anomalyco/tap/opencode'
     casks:
     - 'font-jetbrains-mono-nerd-font'
     - 'google-chrome'
     - 'spotify'
-    - 'karabiner-elements'
     - 'raycast'
   linuxmint:
     packages:
