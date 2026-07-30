@@ -25,6 +25,7 @@ packages:
     - 'google-chrome'
     - 'spotify'
     - 'raycast'
+    - 'lunar'
   linuxmint:
     packages:
     - 'openssh-server'
