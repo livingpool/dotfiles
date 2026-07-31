@@ -5,12 +5,22 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-fcd() {
-  local dir
-  dir=$(find ${1:-.} -path '*/\.*' -prune \
-                  -o -type d -print 2> /dev/null | fzf +m) &&
-  cd "$dir"
-}
+# fzf configurations
+# Set fd as the default source for fzf; follow symbolic links and include hidden files (but exclude the listed folders)
+FD_OPTIONS="--strip-cwd-prefix --hidden --follow --exclude .git --exclude node_modules --exclude target"
+export FZF_DEFAULT_COMMAND="fd --type f $FD_OPTIONS"
+
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_CTRL_T_OPTS="--style full \
+  --preview 'bat -n --color=always {} || tree -C {} | head -200' \
+  --bind 'focus:transform-header:file --brief {}' \
+  --select-1 --exit-0"
+
+export FZF_ALT_C_COMMAND="fd --type d $FD_OPTIONS"
+export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200' --select-1 --exit-0"
+
+# Set up fzf key bindings and fuzzy completion
+source <(fzf --zsh)
 
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
@@ -118,6 +128,15 @@ alias nvim='NVIM_APPNAME=nvim nvim' # Kickstart
 alias vim='nvim'
 alias python='python3'
 
+# Fuzzy change directory; search for a directory and cd into it (filters for non-hidden directories)
+fcd() {
+  local dir
+  dir=$(find ${1:-.} -path '*/\.*' -prune \
+                  -o -type d -print 2> /dev/null | fzf +m) &&
+  cd "$dir"
+}
+
+# Neovim config switcher
 vv() {
   # Assumes all configs exist in directories named ~/.config/nvim-*
   local config=$(fd --max-depth 1 --glob 'nvim-*' ~/.config | fzf --prompt="Neovim Configs > " --height=~50% --layout=reverse --border --exit-0)

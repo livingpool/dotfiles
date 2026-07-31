@@ -1,0 +1,2 @@
+# Treat both left and right Option keys as Alt
+macos-option-as-alt = true

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# add a link to fd
+ln -s $(which fdfind) ~/.local/bin/fd
+
 # install rustup, cargo, cargo binstall, tree-sitter-cli
 curl https://sh.rustup.rs -sSf | sh
 curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash

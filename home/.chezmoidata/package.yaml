@@ -20,6 +20,7 @@ packages:
     - 'chezmoi'
     - 'cargo-binstall'
     - 'anomalyco/tap/opencode'
+    - 'fd'
     casks:
     - 'font-jetbrains-mono-nerd-font'
     - 'google-chrome'
@@ -43,4 +44,5 @@ packages:
     - 'npm'
     - 'tmux'
     - 'jq'
-
+    - 'fd-find'
+    - 'bat'
