@@ -127,6 +127,7 @@ alias ll='ls -al'
 alias nvim='NVIM_APPNAME=nvim nvim' # Kickstart
 alias vim='nvim'
 alias python='python3'
+alias bat="batcat"
 
 # Fuzzy change directory; search for a directory and cd into it (filters for non-hidden directories)
 fcd() {

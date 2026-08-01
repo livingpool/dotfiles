@@ -14,6 +14,15 @@ EOF
 #!/bin/bash
 sudo apt-get update && sudo apt-get install -y {{ range .packages.linuxmint.packages }} {{ . }} {{ end }}
 
+# install mise
+sudo apt install -y extrepo
+sudo extrepo enable mise
+sudo apt update
+sudo apt install -y mise
+
+# install fzf via mise
+mise use -g fzf@latest
+
 {{ else if eq .osid "linux-debian" }}
 
 # Debian-specific code
