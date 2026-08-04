@@ -19,8 +19,9 @@ packages:
     - 'diff-so-fancy'
     - 'chezmoi'
     - 'cargo-binstall'
-    - 'anomalyco/tap/opencode'
     - 'fd'
+    - 'gawk'
+    - 'anomalyco/tap/opencode'
     casks:
     - 'font-jetbrains-mono-nerd-font'
     - 'google-chrome'
