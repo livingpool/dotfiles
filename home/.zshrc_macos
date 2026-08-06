@@ -79,6 +79,9 @@ zstyle ':omz:update' mode disabled  # disable automatic updates
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(git zsh-syntax-highlighting zsh-autosuggestions ssh zsh-vi-mode)
 
+ZVM_SYSTEM_CLIPBOARD_ENABLED=true
+ZVM_CLIPBOARD_USE_OSC52=true
+
 ZVM_INIT_MODE=sourcing
 source $ZSH/oh-my-zsh.sh
 

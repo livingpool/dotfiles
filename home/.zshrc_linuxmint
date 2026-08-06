@@ -5,23 +5,6 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-# fzf configurations
-# Set fd as the default source for fzf; follow symbolic links and include hidden files (but exclude the listed folders)
-FD_OPTIONS="--strip-cwd-prefix --hidden --follow --exclude .git --exclude node_modules --exclude target"
-export FZF_DEFAULT_COMMAND="fd --type f $FD_OPTIONS"
-
-export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-export FZF_CTRL_T_OPTS="--style full \
-  --preview 'bat -n --color=always {} || tree -C {} | head -200' \
-  --bind 'focus:transform-header:file --brief {}' \
-  --select-1 --exit-0"
-
-export FZF_ALT_C_COMMAND="fd --type d $FD_OPTIONS"
-export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200' --select-1 --exit-0"
-
-# Set up fzf key bindings and fuzzy completion
-source <(fzf --zsh)
-
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
@@ -96,6 +79,10 @@ zstyle ':omz:update' mode disabled  # disable automatic updates
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(git zsh-syntax-highlighting zsh-autosuggestions ssh zsh-vi-mode)
 
+ZVM_SYSTEM_CLIPBOARD_ENABLED=true
+ZVM_CLIPBOARD_USE_OSC52=true
+
+ZVM_INIT_MODE=sourcing
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
@@ -129,13 +116,73 @@ alias vim='nvim'
 alias python='python3'
 alias bat="batcat"
 
-# Fuzzy change directory; search for a directory and cd into it (filters for non-hidden directories)
-fcd() {
-  local dir
-  dir=$(find ${1:-.} -path '*/\.*' -prune \
-                  -o -type d -print 2> /dev/null | fzf +m) &&
-  cd "$dir"
+# fzf configurations
+# Set fd as the default source for fzf; follow symbolic links and include hidden files (but exclude the listed folders)
+FD_OPTIONS="--strip-cwd-prefix --hidden --follow --exclude .git --exclude node_modules --exclude target"
+export FZF_DEFAULT_COMMAND="fd --type f $FD_OPTIONS"
+
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_CTRL_T_OPTS="--style full \
+  --preview 'bat -n --color=always {} || tree -C {} | head -200' \
+  --bind 'focus:transform-header:file --brief {}' \
+  --select-1 --exit-0"
+
+export FZF_ALT_C_COMMAND="fd --type d $FD_OPTIONS"
+export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200' --select-1 --exit-0"
+
+export FZF_CTRL_R_OPTS="
+  --preview 'echo {3..} | bat --color=always -pl sh'
+  --preview-window up:hidden:wrap
+  --layout=reverse
+  --bind 'ctrl-/:toggle-preview' \
+  --bind 'ctrl-t:track+clear-query' \
+  --bind 'ctrl-y:execute-silent(echo -n {3..} | pbcopy)+abort'"
+
+# Set up fzf key bindings and fuzzy completion
+source <(fzf --zsh)
+
+# fzf shell history search
+# https://tratt.net/laurie/blog/2025/better_shell_history_search.html
+setopt EXTENDED_HISTORY
+setopt inc_append_history_time
+
+tratt-fzf-history-widget() {
+  local selected num
+  setopt localoptions noglobsubst noposixbuiltins pipefail no_aliases 2> /dev/null
+  local awk_filter='{ cmd=$0; sub(/^\s*[0-9]+\**\s+/, "", cmd); if (!seen[cmd]++) print $0 }'  # filter out duplicates
+  local n=1 fc_opts=''
+  if [[ -o extended_history ]]; then
+    awk_filter='
+{
+  ts = int($2)
+  delta = systime() - ts
+  delta_days = int(delta / 86400)
+  if (delta < 0) { $2="+" (-delta_days) "d" }
+  else if (delta_days < 1 && delta < 72000) { $2=strftime("%H:%M", ts) }
+  else if (delta_days == 0) { $2="1d" }
+  else { $2=delta_days "d" }
+  line=$0; $1=""; $2=""
+  if (!seen[$0]++) print line
+}'
+    fc_opts='-i'
+    n=2
+  fi
+  selected=( $(fc -rl $fc_opts -t '%s' 1 | sed -E "s/^ *//" | gawk "$awk_filter" |
+    FZF_DEFAULT_OPTS="--height ${FZF_TMUX_HEIGHT:-40%} ${FZF_DEFAULT_OPTS-} \
+      --with-nth $n.. --scheme=history --bind=ctrl-r:toggle-sort,ctrl-z:ignore ${FZF_CTRL_R_OPTS-} --query=${(qqq)LBUFFER} +m" $(__fzfcmd)) )
+  local ret=$?
+  if [ -n "$selected" ]; then
+    num=$selected[1]
+    if [ -n "$num" ]; then
+      zle vi-fetch-history -n $num
+    fi
+  fi
+  zle reset-prompt
+  return $ret
 }
+
+zle -N tratt-fzf-history-widget
+bindkey '^R' tratt-fzf-history-widget # TODO: in normal mode, ^R is bond to the default fzf-history-widget
 
 # Neovim config switcher
 vv() {
@@ -166,3 +213,6 @@ export MANPAGER="sh -c 'sed -u -e \"s/\\x1B\[[0-9;]*m//g; s/.\\x08//g\" | bat -p
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# activate mise so that tools and environment variables are loaded automatically
+eval "$(mise activate zsh)"
